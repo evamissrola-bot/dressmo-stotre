@@ -1,0 +1,497 @@
+// Dressmo - Affiliate Fashion Website JavaScript
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize all functionality
+    initializeNavigation();
+    initializeProductLoading();
+    initializeCategoryNavigation();
+    initializeSaveButtons();
+    initializeNewsletter();
+    initializeScrollTop();
+    initializeLazyLoading();
+    initializeAnalytics();
+});
+
+// Navigation functionality
+function initializeNavigation() {
+    const navToggle = document.querySelector('.nav-toggle');
+    const navMenu = document.querySelector('.nav-menu');
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    // Mobile menu toggle
+    navToggle.addEventListener('click', function() {
+        navMenu.classList.toggle('active');
+        
+        // Animate hamburger menu
+        const spans = navToggle.querySelectorAll('span');
+        spans[0].style.transform = navMenu.classList.contains('active') ? 'rotate(-45deg) translate(-5px, 6px)' : '';
+        spans[1].style.opacity = navMenu.classList.contains('active') ? '0' : '1';
+        spans[2].style.transform = navMenu.classList.contains('active') ? 'rotate(45deg) translate(-5px, -6px)' : '';
+    });
+
+    // Smooth scrolling for navigation links
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            
+            if (targetId === '#home') {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            } else {
+                const targetSection = document.querySelector(targetId);
+                if (targetSection) {
+                    targetSection.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            }
+            
+            // Close mobile menu
+            navMenu.classList.remove('active');
+            
+            // Update active link
+            navLinks.forEach(l => l.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+}
+
+// Product data - Simulated affiliate products
+const productData = {
+    trending: [
+        {
+            id: 1,
+            title: "Elegant Lace Wedding Gown",
+            description: "Stunning A-line dress with delicate lace details",
+            price: "$1,299",
+            image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400",
+            category: "wedding-dresses",
+            affiliateUrl: "https://example.com/affiliate/wedding-dress-1"
+        },
+        {
+            id: 2,
+            title: "Pastel Pink Guest Dress",
+            description: "Perfect for spring weddings, comfortable and chic",
+            price: "$189",
+            image: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=400",
+            category: "wedding-guest",
+            affiliateUrl: "https://example.com/affiliate/guest-dress-1"
+        },
+        {
+            id: 3,
+            title: "Pearl Bridal Earrings",
+            description: "Classic pearl drop earrings for the modern bride",
+            price: "$89",
+            image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400",
+            category: "accessories",
+            affiliateUrl: "https://example.com/affiliate/earrings-1"
+        },
+        {
+            id: 4,
+            title: "Crystal Wedding Heels",
+            description: "Elegant stilettos with crystal embellishments",
+            price: "$249",
+            image: "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=400",
+            category: "shoes",
+            affiliateUrl: "https://example.com/affiliate/shoes-1"
+        },
+        {
+            id: 5,
+            title: "Sequin Party Dress",
+            description: "Sparkling mini dress for wedding receptions",
+            price: "$159",
+            image: "https://images.unsplash.com/photo-1566479179817-c0b5b4b4b1e5?w=400",
+            category: "party-dresses",
+            affiliateUrl: "https://example.com/affiliate/party-dress-1"
+        },
+        {
+            id: 6,
+            title: "Bridal Veil with Crystals",
+            description: "Cathedral length veil with crystal edging",
+            price: "$199",
+            image: "https://images.unsplash.com/photo-1583939003579-730e39128a4d?w=400",
+            category: "accessories",
+            affiliateUrl: "https://example.com/affiliate/veil-1"
+        },
+        {
+            id: 7,
+            title: "Nude Platform Pumps",
+            description: "Comfortable and stylish for all-day wear",
+            price: "$129",
+            image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400",
+            category: "shoes",
+            affiliateUrl: "https://example.com/affiliate/pumps-1"
+        },
+        {
+            id: 8,
+            title: "Floral Maxi Dress",
+            description: "Romantic floral print perfect for garden weddings",
+            price: "$169",
+            image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400",
+            category: "wedding-guest",
+            affiliateUrl: "https://example.com/affiliate/floral-dress-1"
+        }
+    ],
+    weddingDresses: [
+        {
+            id: 9,
+            title: "Ball Gown Wedding Dress",
+            description: "Fairytale princess style with full tulle skirt",
+            price: "$1,899",
+            image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500",
+            category: "wedding-dresses",
+            affiliateUrl: "https://example.com/affiliate/ball-gown-1"
+        },
+        {
+            id: 10,
+            title: "Mermaid Style Gown",
+            description: "Figure-hugging silhouette with train",
+            price: "$1,599",
+            image: "https://images.unsplash.com/photo-1568605355472-b6e57771f5c0?w=500",
+            category: "wedding-dresses",
+            affiliateUrl: "https://example.com/affiliate/mermaid-1"
+        },
+        {
+            id: 11,
+            title: "Simple Satin Dress",
+            description: "Minimalist chic with clean lines",
+            price: "$899",
+            image: "https://images.unsplash.com/photo-1583939003579-730e39128a4d?w=500",
+            category: "wedding-dresses",
+            affiliateUrl: "https://example.com/affiliate/satin-dress-1"
+        }
+    ],
+    weddingGuest: [
+        {
+            id: 12,
+            title: "Navy Blue Cocktail Dress",
+            description: "Sophisticated midi length with lace details",
+            price: "$149",
+            image: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=500",
+            category: "wedding-guest",
+            affiliateUrl: "https://example.com/affiliate/navy-dress-1"
+        },
+        {
+            id: 13,
+            title: "Blush Pink Gown",
+            description: "Elegant floor-length for formal weddings",
+            price: "$219",
+            image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=500",
+            category: "wedding-guest",
+            affiliateUrl: "https://example.com/affiliate/blush-gown-1"
+        }
+    ],
+    accessories: [
+        {
+            id: 14,
+            title: "Crystal Bridal Crown",
+            description: "Sparkling tiara for the modern princess",
+            price: "$299",
+            image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=500",
+            category: "accessories",
+            affiliateUrl: "https://example.com/affiliate/crown-1"
+        },
+        {
+            id: 15,
+            title: "Pearl Necklace Set",
+            description: "Classic freshwater pearl jewelry",
+            price: "$159",
+            image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=500",
+            category: "accessories",
+            affiliateUrl: "https://example.com/affiliate/pearl-set-1"
+        }
+    ],
+    shoes: [
+        {
+            id: 16,
+            title: "Silver Strappy Heels",
+            description: "Elegant evening shoes with ankle strap",
+            price: "$179",
+            image: "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=500",
+            category: "shoes",
+            affiliateUrl: "https://example.com/affiliate/silver-heels-1"
+        },
+        {
+            id: 17,
+            title: "White Satin Pumps",
+            description: "Classic bridal shoes with bow detail",
+            price: "$149",
+            image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=500",
+            category: "shoes",
+            affiliateUrl: "https://example.com/affiliate/white-pumps-1"
+        }
+    ],
+    partyDresses: [
+        {
+            id: 18,
+            title: "Gold Sequin Mini",
+            description: "Sparkling party dress for receptions",
+            price: "$189",
+            image: "https://images.unsplash.com/photo-1566479179817-c0b5b4b4b1e5?w=500",
+            category: "party-dresses",
+            affiliateUrl: "https://example.com/affiliate/gold-sequin-1"
+        },
+        {
+            id: 19,
+            title: "Black Cocktail Dress",
+            description: "Timeless LBD with modern twist",
+            price: "$129",
+            image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=500",
+            category: "party-dresses",
+            affiliateUrl: "https://example.com/affiliate/black-cocktail-1"
+        }
+    ]
+};
+
+// Product loading functionality
+function initializeProductLoading() {
+    loadProducts('trending-grid', productData.trending);
+    loadProducts('wedding-dresses-grid', productData.weddingDresses);
+    loadProducts('wedding-guest-grid', productData.weddingGuest);
+    loadProducts('accessories-grid', productData.accessories);
+    loadProducts('shoes-grid', productData.shoes);
+    loadProducts('party-dresses-grid', productData.partyDresses);
+}
+
+function loadProducts(gridId, products) {
+    const grid = document.getElementById(gridId);
+    if (!grid) return;
+
+    // Create product cards with masonry sizing
+    products.forEach((product, index) => {
+        const card = createProductCard(product, index);
+        grid.appendChild(card);
+    });
+}
+
+function createProductCard(product, index) {
+    const card = document.createElement('div');
+    card.className = 'product-card';
+    
+    // Add masonry size class for variety
+    const sizeClass = getMasonrySizeClass(index);
+    card.classList.add(sizeClass);
+    
+    card.innerHTML = `
+        <div class="product-image">
+            <img class="lazy-image" data-src="${product.image}" alt="${product.title}" loading="lazy">
+            <button class="product-save" aria-label="Save for later" data-product-id="${product.id}">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+            </button>
+        </div>
+        <div class="product-info">
+            <h3 class="product-title">${product.title}</h3>
+            <p class="product-description">${product.description}</p>
+            <div class="product-price">${product.price}</div>
+            <button class="product-cta" data-affiliate-url="${product.affiliateUrl}" data-product-id="${product.id}">
+                Shop Now
+            </button>
+        </div>
+    `;
+    
+    return card;
+}
+
+function getMasonrySizeClass(index) {
+    // Rotate through different sizes for visual variety
+    if (index % 3 === 0) return 'large';
+    if (index % 2 === 0) return 'medium';
+    return 'small';
+}
+
+// Category navigation
+function initializeCategoryNavigation() {
+    const categoryCards = document.querySelectorAll('.category-card');
+    const navLinks = document.querySelectorAll('.nav-link');
+    
+    categoryCards.forEach(card => {
+        card.addEventListener('click', function() {
+            const category = this.dataset.category;
+            showCategoryPage(category);
+        });
+    });
+}
+
+function showCategoryPage(category) {
+    // Hide all category pages
+    const pages = document.querySelectorAll('.category-page');
+    pages.forEach(page => page.classList.remove('active'));
+    
+    // Show selected category page
+    const targetPage = document.getElementById(category);
+    if (targetPage) {
+        targetPage.classList.add('active');
+        targetPage.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+// Save for later functionality (simulating Pinterest-style saves)
+function initializeSaveButtons() {
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.product-save')) {
+            e.preventDefault();
+            const button = e.target.closest('.product-save');
+            const productId = button.dataset.productId;
+            
+            // Toggle saved state
+            button.classList.toggle('saved');
+            
+            // Simulate saving to localStorage
+            let savedItems = JSON.parse(localStorage.getItem('savedItems') || '[]');
+            
+            if (button.classList.contains('saved')) {
+                savedItems.push(productId);
+            } else {
+                savedItems = savedItems.filter(id => id !== productId);
+            }
+            
+            localStorage.setItem('savedItems', JSON.stringify(savedItems));
+            
+            // Track save event for analytics
+            trackEvent('product_saved', { product_id: productId });
+        }
+    });
+}
+
+// Newsletter signup
+function initializeNewsletter() {
+    const form = document.getElementById('newsletter-form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = this.querySelector('input[type="email"]').value;
+            
+            // Simulate newsletter signup
+            alert(`Thank you for subscribing! We'll send fashion updates to ${email}`);
+            this.reset();
+            
+            // Track signup for analytics
+            trackEvent('newsletter_signup', { email: email });
+        });
+    }
+}
+
+// Scroll to top button
+function initializeScrollTop() {
+    const scrollTopBtn = document.createElement('button');
+    scrollTopBtn.className = 'scroll-top';
+    scrollTopBtn.innerHTML = '↑';
+    scrollTopBtn.setAttribute('aria-label', 'Scroll to top');
+    document.body.appendChild(scrollTopBtn);
+    
+    window.addEventListener('scroll', function() {
+        if (window.pageYOffset > 300) {
+            scrollTopBtn.classList.add('visible');
+        } else {
+            scrollTopBtn.classList.remove('visible');
+        }
+    });
+    
+    scrollTopBtn.addEventListener('click', function() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+}
+
+// Lazy loading for images
+function initializeLazyLoading() {
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                img.src = img.dataset.src;
+                img.classList.add('loaded');
+                observer.unobserve(img);
+            }
+        });
+    });
+    
+    const lazyImages = document.querySelectorAll('.lazy-image');
+    lazyImages.forEach(img => imageObserver.observe(img));
+}
+
+// Analytics tracking (simulated)
+function initializeAnalytics() {
+    // Track affiliate link clicks
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('product-cta')) {
+            e.preventDefault();
+            const button = e.target;
+            const productId = button.dataset.productId;
+            const affiliateUrl = button.dataset.affiliateUrl;
+            
+            // Track click event
+            trackEvent('affiliate_click', {
+                product_id: productId,
+                affiliate_url: affiliateUrl
+            });
+            
+            // Simulate redirect to affiliate link
+            console.log(`Redirecting to affiliate link: ${affiliateUrl}`);
+            alert(`This would redirect to: ${affiliateUrl}`);
+            
+            // In a real implementation, you would redirect to the affiliate URL
+            // window.open(affiliateUrl, '_blank');
+        }
+    });
+    
+    // Track page views
+    trackEvent('page_view', {
+        page: window.location.pathname,
+        timestamp: new Date().toISOString()
+    });
+}
+
+function trackEvent(eventName, eventData) {
+    // Simulate analytics tracking
+    console.log(`Analytics Event: ${eventName}`, eventData);
+    
+    // In a real implementation, you would send this to your analytics service
+    // gtag('event', eventName, eventData);
+}
+
+// Additional utility functions
+
+// Simulate loading more products on scroll
+function initializeInfiniteScroll() {
+    let isLoading = false;
+    
+    window.addEventListener('scroll', function() {
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 1000) {
+            if (!isLoading) {
+                isLoading = true;
+                // Simulate loading more products
+                setTimeout(() => {
+                    // Add more products to the grid
+                    isLoading = false;
+                }, 1000);
+            }
+        }
+    });
+}
+
+// Initialize infinite scroll for trending section
+initializeInfiniteScroll();
+
+// Add CSS for masonry sizes
+const style = document.createElement('style');
+style.textContent = `
+    .product-card.small {
+        grid-row-end: span 20;
+    }
+    .product-card.medium {
+        grid-row-end: span 25;
+    }
+    .product-card.large {
+        grid-row-end: span 30;
+    }
+`;
+document.head.appendChild(style);
